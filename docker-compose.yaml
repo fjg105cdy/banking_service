@@ -1,0 +1,17 @@
+services:
+  banking_spring:
+    container_name: banking_postgresql
+    image: postgres:latest
+    ports:
+      - "5435:5432"
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=username
+      - POSTGRES_DB=banking_spring
+      - PGDATA=/data/postgres
+    volumes:
+      - postgres:/data/postgres
+    restart: always
+
+volumes:
+  postgres:
