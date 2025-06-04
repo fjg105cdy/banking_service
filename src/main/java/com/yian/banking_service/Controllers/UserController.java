@@ -4,6 +4,7 @@ import com.yian.banking_service.dtos.ApiResponseDTO;
 import com.yian.banking_service.dtos.UserRequestDTO;
 import com.yian.banking_service.dtos.UserResponseDTO;
 import com.yian.banking_service.entities.User;
+import com.yian.banking_service.services.EmailService;
 import com.yian.banking_service.services.UserService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -18,6 +19,7 @@ import java.util.List;
 @RequestMapping("/api/v1/users")
 public class UserController {
     private final UserService userService;
+    private final EmailService emailService;
 
     //등록하는 API
     @PostMapping("/signup")
@@ -25,6 +27,10 @@ public class UserController {
             @Valid @RequestBody UserRequestDTO userRequestDTO
     ) {
         UserResponseDTO userResponseDTO = userService.createUser(userRequestDTO);
+        //welcome email 보내는 logic
+        emailService.sendEmail(userResponseDTO.getEmail(),userRequestDTO.getUsername());
+
+        //response 표준화
         ApiResponseDTO<UserResponseDTO> response = ApiResponseDTO.<UserResponseDTO>builder()
                 .statusCode(HttpStatus.CREATED.value())
                 .message("User created successfully")

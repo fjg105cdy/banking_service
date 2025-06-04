@@ -17,7 +17,9 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @Table(name = "PROFILES")
 public class Profile extends AbstractEntity {
-    private String username;
+    private String job;
+    private Integer age;
+    private String gender;
     private String hobby;
     private String qualification;
 
