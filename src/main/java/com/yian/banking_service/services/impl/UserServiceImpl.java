@@ -12,6 +12,7 @@ import com.yian.banking_service.services.EmailService;
 import com.yian.banking_service.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,6 +27,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final EmailService emailService;
+    private final RedisTemplate<String, String> redisTemplate;
 
 
     @Override
@@ -67,10 +69,17 @@ public class UserServiceImpl implements UserService {
         //6자리로 된 랜덤번호 생성-> 랜덤번호 저장 -> 이메일로 보내기
 
         String code = String.format("%06d",new Random().nextInt(1000000));
+        emailService.sendEmailVerificationCode(emailRequestDTO.getEmail(), code);
 
         //저장하는 로직 추가(임시적으로 저장하는 디비 만들것(Redis))
+        redisTemplate.opsForValue().set("email:verify:" + emailRequestDTO.getEmail(), code);
 
-        emailService.sendEmailVerificationCode(emailRequestDTO.getEmail(), code);
+        String stored = redisTemplate.opsForValue().get("email:verify:" + emailRequestDTO.getEmail());
+        log.info("Redis에서 방금 저장된 값: {}", stored);
+
+
+
+
 
         return code;
 
