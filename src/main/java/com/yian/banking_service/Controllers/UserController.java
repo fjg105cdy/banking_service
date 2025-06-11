@@ -1,6 +1,7 @@
 package com.yian.banking_service.Controllers;
 
 import com.yian.banking_service.dtos.ApiResponseDTO;
+import com.yian.banking_service.dtos.EmailRequestDTO;
 import com.yian.banking_service.dtos.UserRequestDTO;
 import com.yian.banking_service.dtos.UserResponseDTO;
 import com.yian.banking_service.entities.User;
@@ -60,6 +61,23 @@ public class UserController {
                 .data(user)
                 .build();
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    //이메일 인증
+    @PostMapping("/send/email")
+    public ResponseEntity<ApiResponseDTO<Boolean>> sendEmail(
+            @RequestBody @Valid EmailRequestDTO emailRequestDTO
+    ){
+        userService.sendEmailVerification(emailRequestDTO);
+
+        ApiResponseDTO<Boolean> response = ApiResponseDTO.<Boolean>builder()
+                .statusCode(HttpStatus.OK.value())
+                .message("successful send email")
+                .data(true)
+                .build();
+
+        return ResponseEntity.ok(response);
+
     }
 
 }

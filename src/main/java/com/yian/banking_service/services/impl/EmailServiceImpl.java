@@ -66,4 +66,29 @@ public class EmailServiceImpl implements EmailService {
         });
 
     }
+
+    @Override
+    public void sendEmailVerificationCode(String to, String code) {
+        executor.execute(()->{
+            try{
+                MimeMessage mimeMessage = mailSender.createMimeMessage();
+                MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+
+                Context context = new Context();
+                context.setVariable("code", code);
+                String htmlContent = templateEngine.process("verification-email", context);
+
+                helper.setTo(to);
+                helper.setSubject("이메일 인증 코드 전송 - Yian");
+                helper.setText(htmlContent, true);
+
+                mailSender.send(mimeMessage);
+
+
+            } catch (Exception ex){
+                System.err.println("Email send fail"+ex.getMessage());
+                ex.printStackTrace();
+            }
+        });
+    }
 }
