@@ -1,9 +1,6 @@
 package com.yian.banking_service.Controllers;
 
-import com.yian.banking_service.dtos.ApiResponseDTO;
-import com.yian.banking_service.dtos.EmailRequestDTO;
-import com.yian.banking_service.dtos.UserRequestDTO;
-import com.yian.banking_service.dtos.UserResponseDTO;
+import com.yian.banking_service.dtos.*;
 import com.yian.banking_service.entities.User;
 import com.yian.banking_service.services.EmailService;
 import com.yian.banking_service.services.UserService;
@@ -78,6 +75,19 @@ public class UserController {
 
         return ResponseEntity.ok(response);
 
+    }
+
+    @PostMapping("/verify/email")
+    public ResponseEntity<ApiResponseDTO<Boolean>> verifyEmail(
+            @RequestBody @Valid EmailVerifyRequestDTO emailVerifyRequestDTO
+    ){
+        boolean verified = userService.verifyEmailCode(emailVerifyRequestDTO);
+        ApiResponseDTO<Boolean> response = ApiResponseDTO.<Boolean>builder()
+                .statusCode(HttpStatus.OK.value())
+                .message("successful verify email")
+                .build();
+
+        return ResponseEntity.ok(response);
     }
 
 }

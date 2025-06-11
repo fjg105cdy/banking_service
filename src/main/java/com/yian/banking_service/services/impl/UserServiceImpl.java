@@ -2,6 +2,7 @@ package com.yian.banking_service.services.impl;
 
 import com.yian.banking_service.Mappers.UserMapper;
 import com.yian.banking_service.dtos.EmailRequestDTO;
+import com.yian.banking_service.dtos.EmailVerifyRequestDTO;
 import com.yian.banking_service.dtos.UserRequestDTO;
 import com.yian.banking_service.dtos.UserResponseDTO;
 import com.yian.banking_service.entities.User;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -72,7 +74,7 @@ public class UserServiceImpl implements UserService {
         emailService.sendEmailVerificationCode(emailRequestDTO.getEmail(), code);
 
         //저장하는 로직 추가(임시적으로 저장하는 디비 만들것(Redis))
-        redisTemplate.opsForValue().set("email:verify:" + emailRequestDTO.getEmail(), code);
+        redisTemplate.opsForValue().set("email:verify:" + emailRequestDTO.getEmail(), code, 5, TimeUnit.MINUTES);
 
         String stored = redisTemplate.opsForValue().get("email:verify:" + emailRequestDTO.getEmail());
         log.info("Redis에서 방금 저장된 값: {}", stored);
@@ -84,5 +86,23 @@ public class UserServiceImpl implements UserService {
         return code;
 
 
+    }
+
+    @Override
+    public boolean verifyEmailCode(EmailVerifyRequestDTO emailVerifyRequestDTO) {
+        String redisKey = "email:verify:" + emailVerifyRequestDTO.getEmail();
+        String savedCode = redisTemplate.opsForValue().get(redisKey);
+
+        if (savedCode == null) {
+            throw new IllegalStateException("인증코드가 존재하지 않거나 만료되었습니다");
+        }
+        if (!savedCode.equals(emailVerifyRequestDTO.getCode())) {
+            throw new IllegalStateException("인증코드가 일치하지 않습니다");
+        }
+
+        //일회용 코드이므로 삭제
+        redisTemplate.delete(redisKey);
+
+        return true;
     }
 }

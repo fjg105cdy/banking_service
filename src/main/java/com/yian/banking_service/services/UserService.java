@@ -1,6 +1,7 @@
 package com.yian.banking_service.services;
 
 import com.yian.banking_service.dtos.EmailRequestDTO;
+import com.yian.banking_service.dtos.EmailVerifyRequestDTO;
 import com.yian.banking_service.dtos.UserRequestDTO;
 import com.yian.banking_service.dtos.UserResponseDTO;
 
@@ -15,4 +16,6 @@ public interface UserService {
     UserResponseDTO createUser(UserRequestDTO userRequestDTO);
 
     String sendEmailVerification(EmailRequestDTO emailRequestDTO);
+
+    boolean verifyEmailCode(EmailVerifyRequestDTO emailVerifyRequestDTO);
 }
